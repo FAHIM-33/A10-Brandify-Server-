@@ -27,17 +27,26 @@ async function run() {
     await client.connect();
     const productDB = client.db("productDB").collection('products')
 
-    app.get('/product', async(req,res)=>{
-        let result = await productDB.find().toArray()
-        res.send(result)
+    app.get('/product', async (req, res) => {
+      let result = await productDB.find().toArray()
+      res.send(result)
     })
 
-    app.post('/product',async(req,res)=>{
-        let data = req.body
-        let result = await productDB.insertOne(data)
-        res.send(result)
+    app.get('/product/:title', async (req, res) => {
+      let brandName = req.params.title
+      let query = { brand : brandName }
+      const options = {
+        projection: {},
+      };
+      let result = await productDB.find(query,options).toArray()
+      res.send(result)
     })
 
+    app.post('/product', async (req, res) => {
+      let data = req.body
+      let result = await productDB.insertOne(data)
+      res.send(result)
+    })
 
 
 
@@ -51,8 +60,8 @@ async function run() {
 }
 run().catch(console.dir);
 
-app.get('/',(req,res)=>{
-    res.send("Server is up")
+app.get('/', (req, res) => {
+  res.send("Server is up")
 })
 
-app.listen(port,()=>{console.log("Server running at:", port);})
+app.listen(port, () => { console.log("Server running at:", port); })
