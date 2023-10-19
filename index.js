@@ -85,23 +85,13 @@ async function run() {
       res.send(result)
     })
 // Search with title----------------------------------------------------------------------
-    app.get('/search/:title', async (req, res) => {
-      let brandName = req.params.title
-      let query = { brand: brandName }
-      const options = {
-        projection: {},
-      };
-      let result = await productDB.find(query, options).toArray()
-      res.send(result)
-    })
+
 
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
-    // Ensures that the client will close when you finish/error
-    // await client.close();
   }
 }
 run().catch(console.dir);
