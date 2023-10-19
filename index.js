@@ -2,7 +2,7 @@ const express = require('express')
 require('dotenv').config()
 const cors = require('cors')
 const port = process.env.PORT || 5000;
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express()
 
 //middleware
@@ -13,7 +13,6 @@ app.use(express.json())
 
 const uri = `mongodb+srv://${process.env.USER_NAME}:${process.env.USER_PASSWORD}@cluster0.4pbmvpd.mongodb.net/?retryWrites=true&w=majority`;
 
-// Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
   serverApi: {
     version: ServerApiVersion.v1,
@@ -26,19 +25,17 @@ async function run() {
   try {
     await client.connect();
     const productDB = client.db("productDB").collection('products')
+    const cartDB = client.db("productDB").collection('Cart')
 
     app.get('/product', async (req, res) => {
       let result = await productDB.find().toArray()
       res.send(result)
     })
 
-    app.get('/product/:title', async (req, res) => {
-      let brandName = req.params.title
-      let query = { brand : brandName }
-      const options = {
-        projection: {},
-      };
-      let result = await productDB.find(query,options).toArray()
+    app.get('/product/:id', async (req, res) => {
+      let id = req.params.id
+      let query = { _id: new ObjectId(id) }
+      let result = await productDB.findOne(query)
       res.send(result)
     })
 
@@ -48,6 +45,55 @@ async function run() {
       res.send(result)
     })
 
+    app.put('/product/:id', async (req, res) => {
+      let id = req.params.id
+      let data = req.body
+      console.log(data);
+      let filter = { _id: new ObjectId(id) }
+      let options = { upsert: true }
+      let newProduct = {
+        $set: {
+          name: data.name,
+          brand: data.brand,
+          url: data.url,
+          type: data.type,
+          price: data.price,
+          rating: data.rating,
+          discription: data.discription
+        }
+      }
+      let result = await productDB.updateOne(filter, newProduct, options)
+      res.send(result)
+    })
+    //For Cart-------------------------------------------------------------------------------- 
+    app.get('/cart', async (req, res) => {
+      let result = await cartDB.find().toArray()
+      res.send(result)
+    })
+
+    app.post('/cart', async (req, res) => {
+      let data = req.body
+      let { _id, ...rest } = data
+      let result = await cartDB.insertOne(rest)
+      res.send(result)
+    })
+
+    app.delete('/cart/:id', async (req, res) => {
+      let id = req.params.id;
+      let filter = { _id: new ObjectId(id) }
+      let result = await cartDB.deleteOne(filter)
+      res.send(result)
+    })
+
+    app.get('/search/:title', async (req, res) => {
+      let brandName = req.params.title
+      let query = { brand: brandName }
+      const options = {
+        projection: {},
+      };
+      let result = await productDB.find(query, options).toArray()
+      res.send(result)
+    })
 
 
     // Send a ping to confirm a successful connection
