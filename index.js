@@ -85,7 +85,15 @@ async function run() {
       res.send(result)
     })
 // Search with title----------------------------------------------------------------------
-
+app.get('/search/:title', async (req, res) => {
+  let brandName = req.params.title
+  let query = { brand: brandName }
+  const options = {
+    projection: {},
+  };
+  let result = await productDB.find(query, options).toArray()
+  res.send(result)
+})
 
 
     // Send a ping to confirm a successful connection
