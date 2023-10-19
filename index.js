@@ -84,7 +84,7 @@ async function run() {
       let result = await cartDB.deleteOne(filter)
       res.send(result)
     })
-
+// Search with title----------------------------------------------------------------------
     app.get('/search/:title', async (req, res) => {
       let brandName = req.params.title
       let query = { brand: brandName }
