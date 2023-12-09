@@ -5,3 +5,6 @@ Functionalities of this Server side:
 - MongoDB was used as Database in this project.
 - Express API was used as server in this project.
 - All Functions are handled asyncronously.
+
+## Live link:
+https://assignment-10-2babd.web.app/
